@@ -36,14 +36,24 @@ class GaussianModel:
         self.scaling_inverse_activation = torch.log
 
         self.covariance_activation = build_covariance_from_scaling_rotation
+        self.rotation_activation = torch.nn.functional.normalize
+
         self.opacity_activation = torch.sigmoid
         self.inverse_opacity_activation = inverse_sigmoid
-        self.rotation_activation = torch.nn.functional.normalize
+
+        # color activation: c = gamma(c_diffuse + c_specular*L + c_residual)
+        self.diffuse_activation = torch.sigmoid
+        self.specular_activation = torch.sigmoid
+        self.default_roughness = 0.0
+        self.roughness_activation = torch.sigmoid
+        self.roughness_bias = 0.
+        self.default_roughness = 0.6
 
 
     def __init__(self, sh_degree : int):
         self.active_sh_degree = 0
         self.max_sh_degree = sh_degree  
+
         self._xyz = torch.empty(0)
         self._features_dc = torch.empty(0)
         self._features_rest = torch.empty(0)
@@ -52,6 +62,11 @@ class GaussianModel:
         self._opacity = torch.empty(0)
         self.max_radii2D = torch.empty(0)
         self.xyz_gradient_accum = torch.empty(0)
+
+        # color setting
+        self._specular = torch.empty(0)
+        self._roughness = torch.empty(0)
+
         self.denom = torch.empty(0)
         self.optimizer = None
         self.percent_dense = 0
