@@ -55,11 +55,16 @@ class ModelParams(ParamGroup):
         self.data_device = "cuda"
         self.eval = False
         self.render_items = ['RGB', 'Alpha', 'Normal', 'Depth', 'Edge', 'Curvature']
+        # Shader BRDF
+        self.brdf_dim = 0
+        self.brdf_mode = "envmap"
+        self.brdf_envmap_res = 64
         super().__init__(parser, "Loading Parameters", sentinel)
 
     def extract(self, args):
         g = super().extract(args)
         g.source_path = os.path.abspath(g.source_path)
+        g.brdf = g.brdf_dim>=0
         return g
 
 class PipelineParams(ParamGroup):
